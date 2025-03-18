@@ -1,8 +1,9 @@
 import React from "react";
+import { useEffect } from "react";
 
 const formatInstructions = (instructions) => {
   return instructions
-    .split(/(?<!\d)\.\s+/) // Splits at ". " but avoids numbers (e.g., "Step 1. Do this.")
+    .split(/(?<!\d)\.\s+|\n/) // Splits at ". " while avoiding numbers & new lines
     .filter((sentence) => sentence.trim().length > 0) // Removes empty entries
     .map((sentence, index) => (
       <li key={index} className="mb-1">
@@ -22,9 +23,19 @@ const Modal = ({
   sourceUrl,
   onClose,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 bg-slate-900/90 flex justify-center items-center p-4">
-      <div className="bg-slate-700 p-6 rounded-lg w-3/4 max-w-4xl text-white flex flex-col md:flex-row gap-6 shadow-xl relative">
+      <div className="bg-slate-700 p-6 rounded-lg w-11/12 max-w-4xl text-white flex flex-col md:flex-row gap-6 shadow-xl relative max-h-[70vh] overflow-y-auto">
         <button
           className="absolute top-3 right-4 text-2xl text-gray-300 hover:text-white cursor-pointer transition"
           onClick={onClose}
